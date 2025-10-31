@@ -1,8 +1,0 @@
-[jenkins]
-jenkins-999 ansible_host=<JENKINS_PUBLIC_IP> ansible_user=ec2-user
-
-[app]
-app-999 ansible_host=<APP_PRIVATE_IP> ansible_user=ec2-user
-
-[bastion]
-bastion-999 ansible_host=<BASTION_PUBLIC_IP> ansible_user=ec2-user
