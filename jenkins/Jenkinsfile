@@ -1,0 +1,31 @@
+pipeline {
+  agent any
+  environment {
+    AWS_REGION = "us-east-1"
+    ECR_REPO = "nodejs-app-999"
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+    stage('Build Docker Image') {
+      steps {
+        sh 'docker build -t $ECR_REPO:$BUILD_NUMBER ./app'
+      }
+    }
+    stage('Push to ECR') {
+      steps {
+        sh 'aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.$AWS_REGION.amazonaws.com'
+        sh 'docker tag $ECR_REPO:$BUILD_NUMBER <aws_account_id>.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$BUILD_NUMBER'
+        sh 'docker push <aws_account_id>.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$BUILD_NUMBER'
+      }
+    }
+    stage('Deploy via Ansible') {
+      steps {
+        sh 'ansible-playbook -i ansible/inventory ansible/deploy_app.yml'
+      }
+    }
+  }
+}
